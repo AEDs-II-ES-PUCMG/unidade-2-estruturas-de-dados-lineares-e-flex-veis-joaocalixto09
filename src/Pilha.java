@@ -53,8 +53,29 @@ public class Pilha<E> {
 	 * @throws IllegalArgumentException se a pilha não contém numItens elementos.
 	 */
 	public Pilha<E> subPilha(int numItens) {
-		
-		// TODO
-		return null;
+		if (numItens < 0) {
+			throw new IllegalArgumentException("numItens deve ser não-negativo");
+		}
+		// Colete os primeiros numItens elementos a partir do topo
+		java.util.ArrayList<E> coletados = new java.util.ArrayList<>();
+		Celula<E> atual = topo;
+		while (atual != null && coletados.size() < numItens) {
+			E item = atual.getItem();
+			if (item == null) {
+				// alcançamos o sentinela/fundo
+				break;
+			}
+			coletados.add(item);
+			atual = atual.getProximo();
+		}
+		if (coletados.size() < numItens) {
+			throw new IllegalArgumentException("A pilha não contém esse número de itens");
+		}
+		Pilha<E> resultado = new Pilha<>();
+		// Empilhar em ordem reversa dos coletados para preservar a ordem original
+		for (int i = coletados.size() - 1; i >= 0; i--) {
+			resultado.empilhar(coletados.get(i));
+		}
+		return resultado;
 	}
 }

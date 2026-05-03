@@ -21,6 +21,8 @@ public class App {
 
     /** Pilha de pedidos */
     static Pilha<Pedido> pilhaPedidos = new Pilha<>();
+    /** Pilha de produtos mais recentemente pedidos */
+    static Pilha<Produto> pilhaProdutosRecentes = new Pilha<>();
         
     static void limparTela() {
         System.out.print("\033[H\033[2J");
@@ -209,13 +211,76 @@ public class App {
      * @param pedido O pedido que deve ser finalizado.
      */
     public static void finalizarPedido(Pedido pedido) {
-    	
-    	// TODO
+    	if (pedido == null) {
+    		System.out.println("Nenhum pedido para finalizar.");
+    		return;
+    	}
+
+    	// Empilha o pedido na pilha de pedidos
+    	pilhaPedidos.empilhar(pedido);
+
+    	// Para cada item do pedido, inclui o produto na pilha de produtos recentes
+    	ItemDePedido[] itens = pedido.getItensDoPedido();
+    	for (int i = 0; i < itens.length; i++) {
+    		if (itens[i] != null) {
+    			pilhaProdutosRecentes.empilhar(itens[i].getProduto());
+    		}
+    	}
+
+    	// Persistência simples: anexa a representação do pedido ao arquivo "pedidos.txt"
+    	try (java.io.FileWriter fw = new java.io.FileWriter("pedidos.txt", true)) {
+    		fw.write(pedido.toString() + System.lineSeparator());
+    		System.out.println("Pedido finalizado e gravado em pedidos.txt");
+    	} catch (java.io.IOException e) {
+    		System.out.println("Erro ao gravar o pedido em arquivo: " + e.getMessage());
+    	}
     }
     
     public static void listarProdutosPedidosRecentes() {
-    	
-    	// TODO
+    	if (pilhaProdutosRecentes.vazia()) {
+    		System.out.println("Nenhum produto recente disponível.");
+    		return;
+    	}
+
+    	Integer k = lerOpcao("Quantos produtos mais recentes deseja visualizar?", Integer.class);
+    	if (k == null || k <= 0) {
+    		System.out.println("Número inválido.");
+    		return;
+    	}
+
+    	try {
+    		Pilha<Produto> topK = pilhaProdutosRecentes.subPilha(k);
+    		System.out.println("Produtos mais recentes:");
+    		while (!topK.vazia()) {
+    			Produto p = topK.desempilhar();
+    			System.out.println(p.toString());
+    		}
+    	} catch (IllegalArgumentException e) {
+    		System.out.println("Erro: " + e.getMessage());
+    	}
+    }
+
+    /** Teste rápido da classe Pilha: insere dígitos únicos da matrícula e imprime a pilha */
+    static void testarPilhaMatricula() {
+    	System.out.println("Digite sua matrícula (apenas dígitos):");
+    	String matricula = teclado.nextLine();
+    	Pilha<Integer> pilhaMat = new Pilha<>();
+    	boolean[] vistos = new boolean[10];
+    	for (int i = 0; i < matricula.length(); i++) {
+    		char c = matricula.charAt(i);
+    		if (Character.isDigit(c)) {
+    			int d = c - '0';
+    			if (!vistos[d]) {
+    				pilhaMat.empilhar(d);
+    				vistos[d] = true;
+    			}
+    		}
+    	}
+
+    	System.out.println("Conteúdo da pilha (do topo para baixo):");
+    	while (!pilhaMat.vazia()) {
+    		System.out.println(pilhaMat.desempilhar());
+    	}
     }
     
 	public static void main(String[] args) {
@@ -225,6 +290,8 @@ public class App {
 		nomeArquivoDados = "produtos.txt";
         produtosCadastrados = lerProdutos(nomeArquivoDados);
         
+        // Teste inicial da pilha com a matrícula (Tarefa 1)
+        testarPilhaMatricula();
         Pedido pedido = null;
         
         int opcao = -1;
