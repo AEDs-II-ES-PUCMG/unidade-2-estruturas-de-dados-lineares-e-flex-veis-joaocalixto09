@@ -66,6 +66,21 @@ public class Fila<E> {
 
 		return quantidade;
 	}
+
+	public Fila<E> extrairLote(int numItens) {
+		Fila<E> lote = new Fila<>();
+		if (numItens <= 0 || vazia()) {
+			return lote;
+		}
+
+		int quantidadeExtraida = 0;
+		while (!vazia() && quantidadeExtraida < numItens) {
+			lote.enfileirar(desenfileirar());
+			quantidadeExtraida++;
+		}
+
+		return lote;
+	}
 	
 	public void imprimir() {
 		

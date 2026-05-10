@@ -21,6 +21,8 @@ public class App {
 
     /** Fila de pedidos aguardando processamento */
     static Fila<Pedido> filaPedidos = new Fila<>();
+    /** Fila auxiliar para visualizar os pedidos mais recentes */
+    static Fila<Pedido> filaPedidosRecentes = new Fila<>();
     /** Pilha de produtos mais recentemente pedidos */
     static Pilha<Produto> pilhaProdutosRecentes = new Pilha<>();
         
@@ -66,6 +68,7 @@ public class App {
         System.out.println("4 - Iniciar novo pedido");
         System.out.println("5 - Fechar pedido");
         System.out.println("6 - Listar produtos dos pedidos mais recentes");
+        System.out.println("7 - Listar pedidos mais recentes");
         System.out.println("0 - Sair");
         System.out.print("Digite sua opção: ");
         return Integer.parseInt(teclado.nextLine());
@@ -218,6 +221,7 @@ public class App {
 
         // Enfileira o pedido finalizado para processamento posterior
         filaPedidos.enfileirar(pedido);
+        filaPedidosRecentes.enfileirar(pedido);
 
     	// Para cada item do pedido, inclui o produto na pilha de produtos recentes
     	ItemDePedido[] itens = pedido.getItensDoPedido();
@@ -272,6 +276,25 @@ public class App {
     	} catch (IllegalArgumentException e) {
     		System.out.println("Erro: " + e.getMessage());
     	}
+    }
+
+    public static void listarPedidosMaisRecentes() {
+        if (filaPedidosRecentes.vazia()) {
+            System.out.println("Nenhum pedido recente disponível.");
+            return;
+        }
+
+        Integer k = lerOpcao("Quantos pedidos mais recentes deseja visualizar?", Integer.class);
+        if (k == null || k <= 0) {
+            System.out.println("Número inválido.");
+            return;
+        }
+
+        Fila<Pedido> lote = filaPedidosRecentes.extrairLote(k);
+        System.out.println("Pedidos mais recentes:");
+        while (!lote.vazia()) {
+            System.out.println(lote.desenfileirar().toString());
+        }
     }
 
     /** Teste rápido da classe Pilha: insere dígitos únicos da matrícula e imprime a pilha */
@@ -366,6 +389,7 @@ public class App {
 				pedido = null;
 			}
                 case 6 -> listarProdutosPedidosRecentes();
+                case 7 -> listarPedidosMaisRecentes();
             }
             pausa();
         }while(opcao != 0);       
