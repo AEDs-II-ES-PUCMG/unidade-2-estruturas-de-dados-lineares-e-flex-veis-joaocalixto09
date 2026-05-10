@@ -19,8 +19,8 @@ public class App {
     /** Quantidade de produtos cadastrados atualmente no vetor */
     static int quantosProdutos = 0;
 
-    /** Pilha de pedidos */
-    static Pilha<Pedido> pilhaPedidos = new Pilha<>();
+    /** Fila de pedidos aguardando processamento */
+    static Fila<Pedido> filaPedidos = new Fila<>();
     /** Pilha de produtos mais recentemente pedidos */
     static Pilha<Produto> pilhaProdutosRecentes = new Pilha<>();
         
@@ -207,7 +207,7 @@ public class App {
     }
     
     /**
-     * Finaliza um pedido, momento no qual ele deve ser armazenado em uma pilha de pedidos.
+     * Finaliza um pedido, momento no qual ele deve ser armazenado em uma fila de pedidos.
      * @param pedido O pedido que deve ser finalizado.
      */
     public static void finalizarPedido(Pedido pedido) {
@@ -216,8 +216,8 @@ public class App {
     		return;
     	}
 
-    	// Empilha o pedido na pilha de pedidos
-    	pilhaPedidos.empilhar(pedido);
+        // Enfileira o pedido finalizado para processamento posterior
+        filaPedidos.enfileirar(pedido);
 
     	// Para cada item do pedido, inclui o produto na pilha de produtos recentes
     	ItemDePedido[] itens = pedido.getItensDoPedido();
@@ -227,13 +227,27 @@ public class App {
     		}
     	}
 
-    	// Persistência simples: anexa a representação do pedido ao arquivo "pedidos.txt"
-    	try (java.io.FileWriter fw = new java.io.FileWriter("pedidos.txt", true)) {
-    		fw.write(pedido.toString() + System.lineSeparator());
-    		System.out.println("Pedido finalizado e gravado em pedidos.txt");
-    	} catch (java.io.IOException e) {
-    		System.out.println("Erro ao gravar o pedido em arquivo: " + e.getMessage());
-    	}
+        System.out.println("Pedido finalizado e colocado na fila de processamento.");
+    }
+
+    /**
+     * Processa todos os pedidos finalizados, gravando-os em arquivo ao encerrar a aplicação.
+     */
+    public static void salvarPedidosPendentes() {
+        if (filaPedidos.vazia()) {
+            System.out.println("Nenhum pedido pendente para gravar.");
+            return;
+        }
+
+        try (java.io.FileWriter fw = new java.io.FileWriter("pedidos.txt", true)) {
+            while (!filaPedidos.vazia()) {
+                Pedido pedido = filaPedidos.desenfileirar();
+                fw.write(pedido.toString() + System.lineSeparator());
+            }
+            System.out.println("Pedidos pendentes gravados em pedidos.txt");
+        } catch (java.io.IOException e) {
+            System.out.println("Erro ao gravar os pedidos em arquivo: " + e.getMessage());
+        }
     }
     
     public static void listarProdutosPedidosRecentes() {
@@ -347,11 +361,16 @@ public class App {
                 case 2 -> mostrarProduto(localizarProduto());
                 case 3 -> mostrarProduto(localizarProdutoDescricao());
                 case 4 -> pedido = iniciarPedido();
-                case 5 -> finalizarPedido(pedido);
+                case 5 -> {
+				finalizarPedido(pedido);
+				pedido = null;
+			}
                 case 6 -> listarProdutosPedidosRecentes();
             }
             pausa();
         }while(opcao != 0);       
+
+		salvarPedidosPendentes();
 
         teclado.close();    
     }
