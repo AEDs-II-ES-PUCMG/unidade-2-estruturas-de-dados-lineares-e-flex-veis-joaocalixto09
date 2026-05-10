@@ -282,6 +282,50 @@ public class App {
     		System.out.println(pilhaMat.desempilhar());
     	}
     }
+
+    /** Teste preliminar da fila: insere os caracteres do primeiro e do segundo nome */
+    static void testarFilaCaracteres() {
+        cabecalho();
+        System.out.println("Teste preliminar da fila de caracteres");
+
+        Fila<Character> fila = new Fila<>();
+
+        System.out.print("Digite o seu primeiro nome: ");
+        String primeiroNome = teclado.nextLine().trim();
+        System.out.print("Digite o seu segundo nome: ");
+        String segundoNome = teclado.nextLine().trim();
+
+        for (int i = 0; i < primeiroNome.length(); i++) {
+            char caractere = primeiroNome.charAt(i);
+            if (!Character.isWhitespace(caractere)) {
+                fila.enfileirar(caractere);
+            }
+        }
+
+        for (int i = 0; i < segundoNome.length(); i++) {
+            char caractere = segundoNome.charAt(i);
+            if (!Character.isWhitespace(caractere)) {
+                fila.enfileirar(caractere);
+            }
+        }
+
+        System.out.println("Conteúdo atual da fila:");
+        fila.imprimir();
+
+        System.out.print("Digite um caractere para contar na fila: ");
+        String entrada = teclado.nextLine();
+        char caractereContado = entrada.isEmpty() ? '\0' : entrada.charAt(0);
+        System.out.println("Ocorrências de '" + caractereContado + "' antes de desenfileirar: " + fila.contarOcorrencias(caractereContado));
+
+        if (!fila.vazia()) {
+            Character removido = fila.desenfileirar();
+            System.out.println("Primeiro caractere desenfileirado: " + removido);
+        }
+
+        System.out.println("Conteúdo da fila após um desenfileiramento:");
+        fila.imprimir();
+        System.out.println("Ocorrências de '" + caractereContado + "' depois de desenfileirar: " + fila.contarOcorrencias(caractereContado));
+    }
     
 	public static void main(String[] args) {
 		
@@ -289,9 +333,9 @@ public class App {
         
 		nomeArquivoDados = "produtos.txt";
         produtosCadastrados = lerProdutos(nomeArquivoDados);
-        
-        // Teste inicial da pilha com a matrícula (Tarefa 1)
-        testarPilhaMatricula();
+
+        // Teste inicial da fila com os nomes do usuário (Tarefa 1)
+        testarFilaCaracteres();
         Pedido pedido = null;
         
         int opcao = -1;
