@@ -4,6 +4,7 @@ Oficinas e atividade pontuada realizada em AEDs II, tendo em vista estruturas de
 
 ## Aluno 
 
-* Nome completo do aluno 1
+* João Vitor Ribeiro Calixto 
+* Pedro Henrique Nogueira Ferreira
 
 
